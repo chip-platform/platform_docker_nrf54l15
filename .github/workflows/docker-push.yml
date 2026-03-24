@@ -1,0 +1,68 @@
+# 名称
+name: Build and Push to Tencent TCR
+
+# 触发条件
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+# 自定义环境变量
+env:
+  GITHUB_REGISTRY: ghcr.io
+  TENCENT_REGISTRY: ccr.ccs.tencentyun.com
+  TENCENT_REGISTRY_NAMESPACE: chip_platform
+  IMAGE_NAME: nrf54l15
+
+jobs:
+  # 定义
+  build-and-push-image:
+    # 公开仓库不计算费用的
+    runs-on: ubuntu-24.04
+    # 设置 `GITHUB_TOKEN` 的权限.
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    steps:
+      # 拉取仓库
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      
+      # 登录github
+      - name: Login to the Github registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.GITHUB_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 登录腾讯docker
+      - name: Login to the Tencent registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.TENCENT_REGISTRY }}
+          username: ${{ secrets.TCR_USER }}
+          password: ${{ secrets.TCR_PASSWORD }}
+  
+      # 提取将应用于指定镜像的标签
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: |
+            ${{env.GITHUB_REGISTRY}}/${{ github.repository }}
+            ${{env.TENCENT_REGISTRY}}/${{env.TENCENT_REGISTRY_NAMESPACE}}/${{env.IMAGE_NAME}}
+      
+      # 推送docker
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@v7
+        with:
+          context: ./resource/
+          file: ./Dockerfile
+          push: true
+          platforms: linux/amd64
+          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
