@@ -13,7 +13,7 @@ docker_tencent_registry_namespace="chip_platform"
 # 腾讯仓库名称
 docker_tencent_registry_name="nrf54l15"
 # 腾讯仓库登录地址
-docker_tencent_registry_url="ccr.ccs.tencentyun.com"
+docker_tencent_registry_url="sgccr.ccs.tencentyun.com"
 # 腾讯仓库登录username
 docker_tencent_registry_username=""
 # 腾讯仓库登录password
