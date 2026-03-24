@@ -10,7 +10,7 @@ on:
 # 自定义环境变量
 env:
   GITHUB_REGISTRY: ghcr.io
-  TENCENT_REGISTRY: ccr.ccs.tencentyun.com
+  TENCENT_REGISTRY: ${{ vars.TRC_REGISTRY }}
   TENCENT_REGISTRY_NAMESPACE: chip_platform
   IMAGE_NAME: nrf54l15
 
