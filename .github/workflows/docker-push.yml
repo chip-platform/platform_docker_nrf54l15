@@ -29,6 +29,8 @@ jobs:
       # 拉取仓库
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          lfs: true  # 核心：启用LFS文件下载
       
       # 登录github
       - name: Login to the Github registry
