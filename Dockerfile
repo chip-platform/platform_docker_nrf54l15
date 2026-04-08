@@ -27,30 +27,6 @@ RUN apt update \
     && apt install -y sudo gcc libc6-dev make srecord git \
     wget python3 python3-pip pipx zip unzip p7zip-full pigz gzip
 
-#########################################################
-# NCS的配置
-#########################################################
-# NCS的安装目录
-ARG NCS_INSTALL_DIR=/opt/${NCS_VERSION}
-COPY ${NCS_VERSION}.7z /opt/toolchain.7z
-# 设置NCS工具链变量
-RUN 7z x /opt/toolchain.7z -o/opt/
-
-# 设置工具链环境变量
-ENV LD_LIBRARY_PATH=${NCS_INSTALL_DIR}/usr/lib:${NCS_INSTALL_DIR}/usr/lib/x86_64-linux-gnu:${NCS_INSTALL_DIR}/usr/local/lib
-ENV PYTHONHOME=${NCS_INSTALL_DIR}/usr/local
-ENV PYTHONPATH=${NCS_INSTALL_DIR}/usr/local/lib/python3.12:${NCS_INSTALL_DIR}/usr/local/lib/python3.12/site-packages
-ENV ZEPHYR_SDK_INSTALL_DIR=${NCS_INSTALL_DIR}/opt/zephyr-sdk
-ENV ZEPHYR_TOOLCHAIN_VARIANT=zephyr
-ENV NRFUTIL_HOME=${NCS_INSTALL_DIR}/nrfutil/home
-ENV PATH="${NCS_INSTALL_DIR}/usr/bin":$PATH
-ENV PATH="${NCS_INSTALL_DIR}/usr/local/bin":$PATH
-ENV PATH="${NCS_INSTALL_DIR}/opt/bin":$PATH
-ENV PATH="${NCS_INSTALL_DIR}/opt/nanopb/generator-bin":$PATH
-ENV PATH="${NCS_INSTALL_DIR}/nrfutil/bin":$PATH
-ENV PATH="${NCS_INSTALL_DIR}/opt/zephyr-sdk/arm-zephyr-eabi/bin":$PATH
-ENV PATH="${NCS_INSTALL_DIR}/opt/zephyr-sdk/riscv64-zephyr-elf/bin":$PATH
-ENV PATH="/home/${USER_NAME}/.local/bin":$PATH
 
 #########################################################
 # 用户配置
@@ -70,6 +46,32 @@ USER ${USER_NAME}
 # 更改挂在目录的权限
 RUN chown ${USER_NAME}:${USER_NAME} /home/${USER_NAME} -R \
     && chmod 755 /home/${USER_NAME} -R
+
+#########################################################
+# NCS的配置
+#########################################################
+# NCS的安装目录
+ARG NCS_INSTALL_DIR=/home/${USER_NAME}/.ncs/${NCS_VERSION}
+COPY ${NCS_VERSION}.7z /home/${USER_NAME}/toolchain.7z
+# 设置NCS工具链变量
+RUN 7z x /home/${USER_NAME}/toolchain.7z -o/home/${USER_NAME}/.ncs/
+
+# 设置工具链环境变量
+ENV LD_LIBRARY_PATH=${NCS_INSTALL_DIR}/usr/lib:${NCS_INSTALL_DIR}/usr/lib/x86_64-linux-gnu:${NCS_INSTALL_DIR}/usr/local/lib
+ENV PYTHONHOME=${NCS_INSTALL_DIR}/usr/local
+ENV PYTHONPATH=${NCS_INSTALL_DIR}/usr/local/lib/python3.12:${NCS_INSTALL_DIR}/usr/local/lib/python3.12/site-packages
+ENV ZEPHYR_SDK_INSTALL_DIR=${NCS_INSTALL_DIR}/opt/zephyr-sdk
+ENV ZEPHYR_TOOLCHAIN_VARIANT=zephyr
+ENV NRFUTIL_HOME=${NCS_INSTALL_DIR}/nrfutil/home
+ENV PATH="${NCS_INSTALL_DIR}/usr/bin":$PATH
+ENV PATH="${NCS_INSTALL_DIR}/usr/local/bin":$PATH
+ENV PATH="${NCS_INSTALL_DIR}/opt/bin":$PATH
+ENV PATH="${NCS_INSTALL_DIR}/opt/nanopb/generator-bin":$PATH
+ENV PATH="${NCS_INSTALL_DIR}/nrfutil/bin":$PATH
+ENV PATH="${NCS_INSTALL_DIR}/opt/zephyr-sdk/arm-zephyr-eabi/bin":$PATH
+ENV PATH="${NCS_INSTALL_DIR}/opt/zephyr-sdk/riscv64-zephyr-elf/bin":$PATH
+ENV PATH="/home/${USER_NAME}/.local/bin":$PATH
+
 
 # 修改工作目录
 WORKDIR /home/${USER_NAME}/
